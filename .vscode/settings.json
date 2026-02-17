@@ -1,0 +1,36 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#469afc",
+        "activityBar.background": "#469afc",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#bc0359",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#469afc",
+        "statusBar.background": "#147efb",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#469afc",
+        "statusBarItem.remoteBackground": "#147efb",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#147efb",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#147efb99",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#147EFB",
+    //"python.defaultInterpreterPath": "${workspaceFolder}/server/.venv/bin/python",
+    "terminal.integrated.env.osx": {
+        "PATH": "/opt/homebrew/bin:${env:HOME}/.asdf/shims:${env:PATH}"
+    },
+    "python.terminal.activateEnvironment": false,
+    "python.testing.cwd": "${workspaceFolder}/server",
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "chat.tools.terminal.autoApprove": {
+        "git status": true
+    }
+}
