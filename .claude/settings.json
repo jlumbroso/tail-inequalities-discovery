@@ -54,6 +54,9 @@
       "Bash(pkill:*)",
       "Bash(brew:*)",
       "Bash(curl:*)",
+      "Bash(npm run:*)",
+      "Bash(npm build:*)",
+      "Bash(npm install:*)",
       "Bash(wget:*)",
       "Bash(which:*)",
       "Bash(git:*)",
@@ -80,7 +83,15 @@
       "Bash(open:*)",
       "WebFetch(domain:imessage.system3.tools)",
       "Bash(.venv/bin/python:*)",
-      "Bash(/Users/jlumbroso/Programming/system3/imessage-mcp/server/.venv/bin/python3:*)"
+      "Bash(/Users/jlumbroso/Programming/system3/imessage-mcp/server/.venv/bin/python3:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh api:*)",
+      "Bash(gh workflow run:*)",
+      "Bash(gh run watch:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [
       "Read(.env*)",
