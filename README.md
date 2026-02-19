@@ -1,99 +1,140 @@
-# Morris Counter Visualization
+# Tail Inequalities — What Can You Prove?
 
-An interactive classroom visualization of the Morris approximate counting algorithm (R. Morris, 1978), built in React. Designed for teaching probabilistic data structures in an algorithms or data structures course.
-
-![Morris Counter](./docs/demo-screenshot.png)
+An interactive classroom visualization of four fundamental tail probability inequalities — Markov, Chebyshev, Chernoff–Hoeffding, and Talagrand — built in React. Designed for teaching probabilistic analysis in algorithms and theory courses (e.g., CIS 5020 at Penn).
 
 ---
 
-## What Is the Morris Counter?
+## The Pedagogical Question
 
-The Morris counter solves a deceptively simple problem: **how do you count a very large number of events using as little memory as possible?**
+You flip N coins and sum the results: S = X₁ + X₂ + … + Xₙ.
 
-An exact counter storing *n* requires ⌈log₂(n)⌉ bits. Morris's insight was that you don't need to know *n* exactly — you only need a good estimate. By storing a value *C* and incrementing it with decreasing probability, you can estimate counts up to billions while using only log₂(log₂(n)) bits. The estimate is recovered as 2^C − 2.
+**How likely is it that S ≥ t?**
 
-The catch: Every increment is a coin flip. With counter value *C*, you flip a biased coin that comes up heads with probability 1/2^C. Only on heads does *C* increment. The higher *C* climbs, the rarer those heads become — which is exactly what keeps the counter small.
+The visualization starts there. It shows you the simulation truth first — 12,000 trials, a histogram, an empirical tail probability. Then it asks: what can you *prove*, and with what assumptions?
 
-It was analyzed and popularized by Philippe Flajolet, which you can read more about in the paper ["The Story of HyperLogLog: How Flajolet Processed Streams with Coin Flips"](https://arxiv.org/abs/1805.00612).
+This is the Freire inversion: instead of presenting formulas and asking students to admire them, it poses a question that the formulas exist to answer. Each inequality is a tool that converts assumptions about the random variable into a guaranteed ceiling on the tail probability. More assumptions buy tighter ceilings. The gap between the ceiling and the truth is the **price of limited knowledge**.
 
 ---
 
-## What This Visualization Shows
+## What the Visualization Shows
 
-The core display is a **growing tape** of coin flips, read left to right, one column per item counted.
+### The experiment controls
+
+Two sliders set the scenario:
+- **N (coins)**: range 10–200, step 10. Default 100.
+- **δ (deviation)**: range 0.5σ to 4.5σ, step 0.25. Default 2.0σ.
+
+A **↻ re-roll** button re-runs the simulation without changing the bounds — reinforcing that bounds are deterministic guarantees, not empirical estimates. The histogram changes; the bounds do not.
+
+### The histogram
+
+12,000 simulated runs, each summing N fair coin flips. Bars in the tail (S ≥ t) are colored coral; bars below threshold are dim. A dashed vertical line marks the threshold t.
+
+### The question
+
+A framed prompt: "How likely is S ≥ t?" This is posed *before* any bound is revealed.
+
+### What you know (knowledge toggles)
+
+Four checkboxes corresponding to the assumptions each inequality requires:
+
+| Assumption | Powers |
+|---|---|
+| Mean | All bounds |
+| Variance | Chebyshev |
+| Independence | Chernoff |
+| Lipschitz | Talagrand |
+
+Unchecking an assumption immediately grays out any bound that requires it. The key interaction: uncheck Independence and watch Chernoff disappear while Chebyshev remains. This makes the assumption→bound connection visceral, without any lecture needed.
+
+### Guarantees vs. Reality
+
+The main panel. One truth row (the simulation), then one row per inequality:
 
 ```
-Morris │ T    T    T    H  │ T    T    T    T    T    T    H  │ T  …
-       │ 1/2  1/2  1/2  1/2│ 1/4  1/4  1/4  1/4  1/4  1/4  1/4│ 1/8
-       │ 50%  50%  50%  50%│ 25%  25%  25%  25%  25%  25%  25%│ 12%
-       │         3 flips   │              7 flips              │
-──────────────────────────────────────────────────────────────────────
-Exact  │ +1   +1   +1   +1 │ +1   +1   +1   +1   +1   +1   +1 │ +1
+Simulation (truth)    2.30%          276 / 12,000 trials
+
+Markov  1889   ≤ 83.3%                              36.2× loose
+████████████████████████████████████│
+
+Chebyshev  1867   ≤ 25.0%                           10.9× loose
+██████████████│
+
+Chernoff  1952   ≤ 1.8%                              0.8× loose
+█│
+
+Talagrand  1995   ≤ 7.3%                             3.2× loose
+████│
+                                    ↑ actual
+0%        25%        50%        75%        100%
 ```
 
-Each column shows the flip result (H or T), the probability it was drawn at, and its percentage. A coral vertical bar closes each **segment** — the stretch of flips between two heads events. The segment flip count appears below.
+Each bar is the bound's guarantee. The thin vertical line is the simulation truth. The gap between them is the looseness — visible, proportional, immediate.
 
-**The key thing students see:** segments get longer as you move right. It took 3 flips to get the first heads (at 1/2 probability). It took 7 to get the second (at 1/4). The counter is becoming harder and harder to increment — and that's the whole trick.
+A "▸ why this value?" expander reveals the formula with the student's current N and threshold substituted in, the required assumptions, and a dynamic insight sentence that adapts to how loose the bound is at the current settings.
 
-The **exact counter row** below never changes. `+1 +1 +1 +1 +1` forever. The contrast between the two rows is the compression made visible.
+### The insight box
+
+A static framing paragraph explaining the tradeoff: stronger assumptions earn tighter bounds. Directs students to use the knowledge toggles.
 
 ---
 
-## Features
+## The Four Inequalities
 
-**Step-by-step mode** — Press `+ ADD ONE` to count one item at a time. Each column appears complete and final: result, probability fraction, and percentage all visible immediately, with no animation delay. Designed for instructor-paced narration.
+### Markov (1889)
+```
+P(S ≥ t) ≤ E[S] / t
+```
+Requires only a known mean and S ≥ 0. Gives O(1/t) decay — polynomial in the threshold. At default settings (~36× loose), its looseness is immediately obvious.
 
-**Play mode** — Press `▶ PLAY` to run automatically at 1–20 flips per second (adjustable). Useful for demonstrating multiple runs and filling the histogram. Pauses with `⏸ PAUSE`.
+### Chebyshev (1867)
+```
+P(|S − μ| ≥ δ) ≤ σ² / δ²
+```
+Requires mean and variance. Gives O(1/δ²) decay — quadratic in the deviation. Works without independence — the key pedagogical point when comparing to Chernoff.
 
-**Auto-reset** — When the actual count reaches MAX (adjustable from 5 to 30), the run is automatically recorded to the histogram and the tape resets. Play mode continues uninterrupted into the next run.
+### Chernoff–Hoeffding (1952/1963)
+```
+P(S − μ ≥ δ) ≤ exp(−2δ² / N)
+```
+Requires independence (Hoeffding's form for bounded [0,1] summands). Gives exponential decay. Often tighter than all others for sums of independent bounded variables — but unavailable without independence.
 
-**Live stats panel** — Always visible to the right of the tape:
-- Actual count
-- Morris C and the estimate formula (2^C − 2 = …)
-- Current, minimum, and maximum error percentage for this run, color-coded green / amber / red
-- Next flip probability
-
-**Persistent histogram** — Final Morris estimates from completed runs accumulate in a bar chart showing the distribution across sessions. Mean (μ) and standard deviation (σ) update live. Storage persists across page reloads via `window.storage`.
+### Talagrand (1995)
+```
+P(f − E[f] ≥ δ) ≤ 4·exp(−δ² / N)
+```
+Requires a product space and a 1-Lipschitz function. For simple sums, it is intentionally looser than Chernoff (factor-of-4 constant, half the exponent coefficient). This is a feature: Talagrand's power is that it works for *any* well-behaved function of many variables — the diameter of a random graph, the length of a longest increasing subsequence — not just sums.
 
 ---
 
 ## Getting Started
 
-This is a single React component. Drop `morris-counter.jsx` into any React project.
-
 ```bash
-# If starting fresh with Vite
-npm create vite@latest morris-counter -- --template react
-cd morris-counter
-cp path/to/morris-counter.jsx src/App.jsx
 npm install
 npm run dev
 ```
 
-Or render it directly in a Claude artifact — it requires no dependencies beyond React itself.
+Or build for deployment:
 
-The component uses `window.storage` for histogram persistence (available in Claude's artifact environment). In a standard browser, replace the three `window.storage` calls with `localStorage` equivalents:
-
-```js
-// get
-const raw = localStorage.getItem(STORAGE_KEY);
-if (raw) setRuns(JSON.parse(raw));
-
-// set
-localStorage.setItem(STORAGE_KEY, JSON.stringify(newRuns));
-
-// delete
-localStorage.removeItem(STORAGE_KEY);
+```bash
+npm run build
 ```
+
+The build output lands in `dist/` with the base path `/tail-inequalities-visualization/`, matching the GitHub Pages deployment of this repository.
 
 ---
 
-## Files
+## Repository Structure
 
 ```
-morris-counter.jsx        The visualization component
-morris-counter-spec.md    Full specification (palette, layout, algorithms, pedagogy)
-README.md                 This file
+src/
+  main.jsx                           Entry point (React root)
+  TailInequalitiesVisualization.jsx  The visualization component (v4)
+docs/
+  tail-inequalities-v4-spec.md       Full specification: palette, math, layout, pedagogy
+index.html                           HTML shell
+vite.config.js                       Vite + React plugin, base path
+package.json
 ```
 
 ---
@@ -102,55 +143,52 @@ README.md                 This file
 
 **Recommended sequence:**
 
-1. Start with the tape empty. Ask students: "How would you count a billion events on a device with 20 bytes of RAM?"
-2. Press ADD ONE five or six times slowly, narrating each coin flip and its probability.
-3. Point to the first segment closure (the first H). Ask: "How many flips did it take? Why is that?"
-4. Continue until C reaches 3 or 4. Point to the stretching segments. Ask: "What's happening to the segment lengths?"
-5. Switch to PLAY at speed 4–6/s and run to MAX. Look at the error readout.
-6. Reset and run 8–10 more times. Let the histogram fill. Discuss the variance: sometimes the estimate is close, sometimes not. That's the algorithm's inherent trade-off.
+1. Load with defaults (N=100, δ=2σ). Point to the histogram and ask: "What fraction of runs ended up in the tail?" Let students guess before reading the number.
+2. Ask: "Can you *prove* that fraction is small? What would you need to know about the distribution?"
+3. Reveal the bounds panel. Walk through Markov first — only the mean. Why is it so loose?
+4. Enable Chebyshev. What extra assumption did we buy? What did it cost?
+5. Enable Chernoff. Same question. Contrast with Chebyshev: they are not ranked, they are tools for *different situations*.
+6. Hit ↻ re-roll several times. Watch the truth marker move; watch the bounds stay fixed. Ask: "What's the difference between a bound and an estimate?"
+7. Uncheck Independence. Chernoff disappears. "When would you actually be in this situation?"
+8. Adjust δ. At small deviations, Chernoff may actually *exceed* the simulation truth (ratio < 1×). Discuss: what does it mean for a bound to be tight?
 
-**Key questions to ask at each segment boundary:**
-- What was the probability of getting that heads?
-- How many bits does C take to store right now?
-- How does 2^C − 2 compare to the actual count?
-
----
-
-## Algorithm Reference
-
-```
-Initialize:  C = 1
-
-ADD ONE:
-  flip a coin with P(heads) = 1 / 2^C
-  if heads:  C = C + 1
-
-Estimate:  n̂ = 2^C − 2
-```
-
-The expected value of 2^C − 2 equals the actual count *n*. The relative error is approximately 1/√2 ≈ 0.707, meaning typical estimates are within ~70% of the true value. Multiple independent Morris counters can be averaged to reduce variance.
+**Key questions:**
+- Which bound requires the fewest assumptions? What does it cost?
+- When would you reach for Chebyshev over Chernoff?
+- Why is Talagrand looser than Chernoff for sums, and why do we still care about it?
 
 ---
 
 ## Design Notes
 
-The visualization was designed around a single pedagogical constraint: **the tape is the whole story.** Every other element — the stats panel, the progress bar, the histogram — is a readout of what the tape already shows. Nothing is hidden or deferred.
+The four previous versions (v1–v3) each found a different way to fail:
 
-Specific decisions that reflect this:
+| Version | Problem |
+|---|---|
+| v1 | All four bounds shaded the same histogram region — visually indistinguishable |
+| v2 | Bar chart of bound values, disconnected from the distribution — numerically correct, semantically opaque |
+| v3 | Log-scale tail plot — mathematically correct, but showed the answer before posing the question; no epistemic structure |
 
-- **No animations.** Columns appear complete. The instructor controls the pace, not the interface.
-- **Probability on every column.** Students can read the denominator doubling as they scan right. The abstraction and the concrete evidence live in the same place.
-- **The exact counter row never changes.** Its monotone `+1` march is the visual anchor that makes the Morris row's sparseness legible.
-- **Segments are labeled.** The flip count below each segment (`"7 flips"`) gives students a number to hold onto when discussing why the counter is efficient.
+v4's key innovations:
+- **Simulation first** — the question is posed before any bound is revealed
+- **Knowledge toggles** — assumptions are first-class objects the student controls
+- **Horizontal bars with truth marker** — the gap between bound and truth is visible as area, not just a number
+- **Re-roll** — teaches the bound/estimate distinction without words
 
-See `morris-counter-spec.md` for a complete technical specification including every color token, pixel measurement, and component behavior.
+See [docs/tail-inequalities-v4-spec.md](docs/tail-inequalities-v4-spec.md) for the complete technical specification.
+
+---
+
+## Credits
+
+Visualization design and implementation (v4): **Claude Opus 4.6** (Anthropic).
+
+Deployment, repository configuration, and logistics: **Claude Sonnet 4.6** (Anthropic).
+
+Pedagogical framing and course context: CIS 5020, University of Pennsylvania.
 
 ---
 
 ## License
 
-MIT. Use freely in courses, adapt for your own algorithms visualizations.
-
----
-
-*Built with Claude Sonnet 4.5 and Sonnet 4.6. Designed for classroom projection on a light background.*
+MIT. Use freely in courses and adapt for your own probability visualizations.
