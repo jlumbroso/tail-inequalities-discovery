@@ -240,13 +240,13 @@ const STAGES = [
   {
     id: 1, title: "Only the mean",
     reveal: "Your monitoring says the average sum is 50.",
-    knowledge: ["S ≥ 0", "E[S] = 50"],
-    bounds: [{ name: "Markov", year: 1889, color: C.coral, value: 50 / 60, detail: "E[S] / t = 50 / 60 ≈ 83.3%" }],
+    knowledge: ["S ≥ 0", "𝔼[S] = 50"],
+    bounds: [{ name: "Markov", year: 1889, color: C.coral, value: 50 / 60, detail: "𝔼[S] / t = 50 / 60 ≈ 83.3%" }],
     unlocks: "Markov",
     narrative: "All you know is the expected value. Maybe the distribution is tightly concentrated around 50, maybe it's wildly spread out. Markov gives you the only guarantee possible: the tail can't exceed the mean divided by the threshold.",
-    explanation: "With only the mean, Markov is your only tool. It says: the tail probability can't exceed E[S]/t. This is often a terrible bound — but it's honest about how little you know.",
-    formulaTex: "P(S \\geq t) \\leq \\frac{E[S]}{t}",
-    exampleDistTitle: "What could S look like? (all have E[S] = 50)",
+    explanation: "With only the mean, Markov is your only tool. It says: the tail probability can't exceed 𝔼[S]/t. This is often a terrible bound — but it's honest about how little you know.",
+    formulaTex: "P(S \\geq t) \\leq \\frac{\\mathbb{E}[S]}{t}",
+    exampleDistTitle: "What could S look like? (all have 𝔼[S] = 50)",
     exampleDists: [
       { label: "Tight normal", points: normalPoints(0.5, 0.06), tailStart: 0.6, caption: "Concentrated. Actual tail: tiny." },
       { label: "Spread uniform", points: uniformPoints(0.1, 0.9), tailStart: 0.6, caption: "Spread 10–90. Actual tail: ~37%." },
@@ -256,36 +256,36 @@ const STAGES = [
   },
   {
     id: 2, title: "Add the variance",
-    reveal: "Further analysis: σ² = 25 (so σ = 5).",
-    knowledge: ["S ≥ 0", "E[S] = 50", "Var(S) = 25"],
+    reveal: "Further analysis: Var(S) = 25 (so √Var(S) = 5).",
+    knowledge: ["S ≥ 0", "𝔼[S] = 50", "Var(S) = 25"],
     bounds: [
       { name: "Markov", year: 1889, color: C.coral, value: 50 / 60, detail: "83.3% (unchanged)" },
-      { name: "Chebyshev", year: 1867, color: C.blue, value: 25 / 100, detail: "σ² / δ² = 25 / 100 = 25%" },
+      { name: "Chebyshev", year: 1867, color: C.blue, value: 25 / 100, detail: "Var(S) / d² = 25 / 100 = 25%" },
     ],
     unlocks: "Chebyshev",
-    narrative: "Now you know the spread: σ = 5. The distribution can't be too wild. This eliminates the uniform and bimodal examples from Stage 1 — their variances were much larger.",
-    explanation: "Chebyshev says: the probability of being δ away from the mean can't exceed σ²/δ². This works for ANY distribution with finite variance — no assumptions about shape or independence.",
-    formulaTex: "P(|S - \\mu| \\geq \\delta) \\leq \\frac{\\sigma^2}{\\delta^2}",
-    exampleDistTitle: "What fits now? (E[S] = 50 AND σ² = 25)",
+    narrative: "Now you know the spread: √Var(S) = 5. The distribution can't be too wild. This eliminates the uniform and bimodal examples from Stage 1 — their variances were much larger.",
+    explanation: "Chebyshev says: the probability of being d away from the mean can't exceed Var(S)/d². This works for ANY distribution with finite variance — no assumptions about shape or independence.",
+    formulaTex: "P(|S - \\mathbb{E}[S]| \\geq d) \\leq \\frac{\\text{Var}(S)}{d^2}",
+    exampleDistTitle: "What fits now? (𝔼[S] = 50 AND Var(S) = 25)",
     exampleDists: [
-      { label: "Normal σ=5", points: normalPoints(0.5, 0.05), tailStart: 0.6, caption: "Bell curve. Actual tail: ~2.3%." },
-      { label: "Skewed right", points: (() => { const pts = []; for (let i = 0; i <= 60; i++) { const x = i / 60; const z = (x - 0.48) / 0.04; pts.push([x, Math.exp(-0.5 * z * z) * (1 + 0.6 / (1 + Math.exp(-15 * (x - 0.48))))]); } return pts; })(), tailStart: 0.6, caption: "Skewed, same σ. Tail: ~4%." },
+      { label: "Normal, √Var = 5", points: normalPoints(0.5, 0.05), tailStart: 0.6, caption: "Bell curve. Actual tail: ~2.3%." },
+      { label: "Skewed right", points: (() => { const pts = []; for (let i = 0; i <= 60; i++) { const x = i / 60; const z = (x - 0.48) / 0.04; pts.push([x, Math.exp(-0.5 * z * z) * (1 + 0.6 / (1 + Math.exp(-15 * (x - 0.48))))]); } return pts; })(), tailStart: 0.6, caption: "Skewed, same variance. Tail: ~4%." },
     ],
-    exampleNote: "Variance eliminates widely-spread distributions. But different shapes can still have σ² = 25. Chebyshev's 25% must cover all of them.",
+    exampleNote: "Variance eliminates widely-spread distributions. But different shapes can still have Var(S) = 25. Chebyshev's 25% must cover all of them.",
   },
   {
     id: 3, title: "Add independence + boundedness",
     reveal: "S = X₁ + X₂ + ... + X₁₀₀ where each Xᵢ is an independent coin flip ∈ {0, 1}.",
-    knowledge: ["S ≥ 0", "E[S] = 50", "Var(S) = 25", "Xᵢ independent", "Xᵢ ∈ [0,1]"],
+    knowledge: ["S ≥ 0", "𝔼[S] = 50", "Var(S) = 25", "Xᵢ independent", "Xᵢ ∈ [0,1]"],
     bounds: [
       { name: "Markov", year: 1889, color: C.coral, value: 50 / 60, detail: "83.3%" },
       { name: "Chebyshev", year: 1867, color: C.blue, value: 25 / 100, detail: "25%" },
-      { name: "Chernoff–Hoeffding", year: 1952, color: C.lime, value: Math.exp(-2), detail: `exp(−2) ≈ ${(Math.exp(-2) * 100).toFixed(1)}%` },
+      { name: "Chernoff–Hoeffding", year: 1952, color: C.lime, value: Math.exp(-2), detail: `exp(−2d²/N) = exp(−2) ≈ ${(Math.exp(-2) * 100).toFixed(1)}%` },
     ],
     unlocks: "Chernoff–Hoeffding",
     narrative: "Now you know the internal structure: 100 independent bounded coin flips. This is enormously powerful. Independence means extreme outcomes require many simultaneous deviations — which is exponentially unlikely.",
-    explanation: "The qualitative leap: exponential decay. Chernoff converts independence + boundedness into a bound that drops as exp(−2δ²/N). This is why algorithm designers work so hard to make random choices independent.",
-    formulaTex: "P(S - \\mu \\geq \\delta) \\leq \\exp\\!\\left(\\frac{-2\\delta^2}{N}\\right)",
+    explanation: "The qualitative leap: exponential decay. Chernoff converts independence + boundedness into a bound that drops as exp(−2d²/N). This is why algorithm designers work so hard to make random choices independent.",
+    formulaTex: "P(S - \\mathbb{E}[S] \\geq d) \\leq \\exp\\!\\left(\\frac{-2d^2}{N}\\right)",
     exampleDistTitle: "What fits now? (independent bounded summands)",
     exampleDists: [
       { label: "Binomial(100, ½)", points: normalPoints(0.5, 0.05), tailStart: 0.6, caption: "Essentially the only shape that fits. Tail: 2.3%." },
@@ -312,14 +312,14 @@ const CHALLENGES = [
     correctAssumptions: { nonneg: true, mean: true, variance: false, independent: false, bounded: false },
     bestBound: "Markov", bestBoundColor: C.coral, boundValue: 200 / 1000,
     bridge: {
-      formula: "P(X \\geq t) \\leq \\frac{E[X]}{t}",
-      mapping: ["E[X] = 200\\text{ ms}", "t = 1000\\text{ ms}"],
+      formula: "P(X \\geq t) \\leq \\frac{\\mathbb{E}[X]}{t}",
+      mapping: ["\\mathbb{E}[X] = 200\\text{ ms}", "t = 1000\\text{ ms}"],
       substitution: "P(T \\geq 1000) \\leq \\frac{200}{1000}",
       result: "20%",
     },
     feedback: "With only the mean known, Markov is your only tool. 20% sounds loose — but consider: server response times often follow heavy-tailed distributions where extreme values are genuinely common. Markov is honest about your ignorance.",
     whyNotOthers: "No variance estimate → Chebyshev can't help. No structural decomposition → Chernoff can't help.",
-    numberNote: "Why 1000 ms? It's a standard timeout threshold (1 second). The question is practical: what fraction of requests might hit the timeout? The threshold is 5× the mean, so Markov gives E[T]/t = 200/1000 = 20%.",
+    numberNote: "Why 1000 ms? It's a standard timeout threshold (1 second). The question is practical: what fraction of requests might hit the timeout? The threshold is 5× the mean, so Markov gives 𝔼[T]/t = 200/1000 = 20%.",
     distSketches: [
       { label: "Normal (light tail)", points: normalPoints(0.2, 0.08), tailStart: 0.6, color: C.blue },
       { label: "Pareto (heavy tail)", points: paretoPoints(2.2), tailStart: 0.6, color: C.bad },
@@ -328,38 +328,38 @@ const CHALLENGES = [
   },
   {
     id: "morris", icon: "🔢", title: "Morris counter accuracy",
-    scenario: "You've run a Morris approximate counter for n = 1000 events. The estimated count (Est) is unbiased: E[Est] = 1000. Theory gives Var(Est) ≈ 500,000, so σ ≈ 707. But each probabilistic increment depends on the current counter value — the increments are NOT independent.",
+    scenario: "You've run a Morris approximate counter for n = 1000 events. The estimated count (Est) is unbiased: 𝔼[Est] = 1000. Theory gives Var(Est) ≈ 500,000, so √Var(Est) ≈ 707. But each probabilistic increment depends on the current counter value — the increments are NOT independent.",
     questionTex: "P(|\\text{Est} - 1000| \\geq 1500) \\leq \\;???",
     correctAssumptions: { nonneg: true, mean: true, variance: true, independent: false, bounded: false },
     bestBound: "Chebyshev", bestBoundColor: C.blue,
     boundValue: Math.min(1, 500000 / (1500 * 1500)),
     bridge: {
-      formula: "P(|X - \\mu| \\geq \\delta) \\leq \\frac{\\sigma^2}{\\delta^2}",
-      mapping: ["\\mu = 1000", "\\sigma^2 = 500{,}000", "\\delta = 1500"],
+      formula: "P(|X - \\mathbb{E}[X]| \\geq d) \\leq \\frac{\\text{Var}(X)}{d^2}",
+      mapping: ["\\mathbb{E}[\\text{Est}] = 1000", "\\text{Var}(\\text{Est}) = 500{,}000", "d = 1500"],
       substitution: "P(|\\text{Est} - 1000| \\geq 1500) \\leq \\frac{500{,}000}{1500^2} = \\frac{500{,}000}{2{,}250{,}000}",
       result: "≈ 22.2%",
     },
     feedback: "You know both the mean and the variance, but the increments are dependent — each probabilistic increment depends on the current counter state. Chernoff requires independence, so it can't be applied here. Chebyshev is your strongest available tool.",
     whyNotOthers: "Each Morris increment depends on the current counter state (increment probability = 1/2^counter). This chain of dependencies breaks independence → Chernoff is inapplicable.",
-    numberNote: "Why δ = 1500? That's a 150% relative error — estimating 1000 events as 2500 or fewer than 0. Since σ ≈ 707, the deviation δ = 1500 is about 2.1σ. Chebyshev gives σ²/δ² ≈ 22%. Not great! This is why the average-of-k trick exists: run k independent Morris counters, average them. The average has variance 500,000/k, and now the averages ARE independent — unlocking Chernoff.",
+    numberNote: "Why d = 1500? That's a 150% relative error — estimating 1000 events as 2500 or fewer than 0. Since √Var(Est) ≈ 707, the deviation d = 1500 is about 2.1 standard deviations. Chebyshev gives Var(Est)/d² ≈ 22%. Not great! This is why the average-of-k trick exists: run k independent Morris counters, average them. The average has variance 500,000/k, and now the averages ARE independent — unlocking Chernoff.",
     distSketches: null, distNote: null,
   },
   {
     id: "bloom", icon: "🔵", title: "Bloom filter saturation",
-    scenario: "You insert 200 items into a Bloom filter with m = 2000 bit-positions and k = 3 independent hash functions. After all insertions, let B = number of bit-positions that are set to 1. Each bit-position is set independently: bit j is set to 1 if any of the 600 hash outputs (200 items × 3 hashes) lands on position j. Since each hash output is an independent uniform random choice, whether bit j is hit is independent of whether bit i is hit. Each bit is a Bernoulli random variable bounded in {0, 1}. Theory gives E[B] ≈ 904, σ ≈ 20.",
+    scenario: "You insert 200 items into a Bloom filter with m = 2000 bit-positions and k = 3 independent hash functions. After all insertions, let B = number of bit-positions that are set to 1. Each bit-position is set independently: bit j is set to 1 if any of the 600 hash outputs (200 items × 3 hashes) lands on position j. Since each hash output is an independent uniform random choice, whether bit j is hit is independent of whether bit i is hit. Each bit is a Bernoulli random variable bounded in {0, 1}. Theory gives 𝔼[B] ≈ 904, √Var(B) ≈ 20.",
     questionTex: "P(B \\geq 1100) \\leq \\;???",
     correctAssumptions: { nonneg: true, mean: true, variance: true, independent: true, bounded: true },
     bestBound: "Chernoff–Hoeffding", bestBoundColor: C.lime,
     boundValue: Math.exp(-2 * 196 * 196 / 2000),
     bridge: {
-      formula: "P(S - \\mu \\geq \\delta) \\leq \\exp\\!\\left(\\frac{-2\\delta^2}{N}\\right)",
-      mapping: ["\\mu = E[B] = 904", "\\delta = 1100 - 904 = 196", "N = 2000\\text{ bits}"],
+      formula: "P(S - \\mathbb{E}[S] \\geq d) \\leq \\exp\\!\\left(\\frac{-2d^2}{N}\\right)",
+      mapping: ["\\mathbb{E}[B] = 904", "d = 1100 - 904 = 196", "N = 2000\\text{ bits}"],
       substitution: "P(B \\geq 1100) \\leq \\exp\\!\\left(\\frac{-2 \\times 196^2}{2000}\\right) = \\exp(-38.4)",
       result: "≈ 2.1 × 10⁻¹⁷",
     },
     feedback: "B is a sum of 2000 independent Bernoulli variables. Why independent? Each bit-position j is either hit or not by any of the 600 independent, uniformly random hash outputs. Whether bit j gets hit depends only on whether any hash lands on j — and since the hash outputs are independent uniform choices, the events for different bit-positions are independent. Each bit is bounded in {0, 1}. All Chernoff assumptions are satisfied.",
     whyNotOthers: "All assumptions hold. Chernoff exploits independence + boundedness for exponential decay, vastly dominating Markov (≤ 82%) and Chebyshev (≤ 2.1%).",
-    numberNote: "Why B ≥ 1100? That's 55% of bits set to 1. When more than ~50% of a Bloom filter's bits are set, the false positive rate degrades rapidly — the filter becomes unreliable. So '1100 of 2000 bits set' is a practically meaningful bad event. The deviation δ = 196 is about 10σ (since σ ≈ 20), so this is a 10-sigma event. Chernoff shows it's astronomically unlikely: 2.1 × 10⁻¹⁷. The Bloom filter is safe.",
+    numberNote: "Why B ≥ 1100? That's 55% of bits set to 1. When more than ~50% of a Bloom filter's bits are set, the false positive rate degrades rapidly — the filter becomes unreliable. So '1100 of 2000 bits set' is a practically meaningful bad event. The deviation d = 196 is about 10 standard deviations (since √Var(B) ≈ 20), so this is a 10-sigma event. Chernoff shows it's astronomically unlikely: 2.1 × 10⁻¹⁷. The Bloom filter is safe.",
     distSketches: null, distNote: null,
   },
 ];
@@ -437,7 +437,7 @@ export default function TailInequalitiesV7() {
       <p style={{ color: C.textMid, fontSize: "0.88rem", margin: "0 0 0.5rem", lineHeight: 1.5 }}>
         You need to bound the probability of a rare event. Each piece of knowledge unlocks a sharper tool.
         The question is never "which bound is best?" — it's{" "}
-        <strong style={{ color: C.lime }}>what do I know about my random variable?</strong>
+        <strong style={{ color: C.lime }}>What do I know about my random variable?</strong>
       </p>
 
       {/* ═══════ PART 1: PROGRESSIVE REVELATION ═══════ */}
@@ -592,7 +592,7 @@ export default function TailInequalitiesV7() {
               <strong style={{ color: C.coral }}>83.3%</strong> → <strong style={{ color: C.blue }}>25%</strong> → <strong style={{ color: C.lime }}>13.5%</strong> → truth <strong>2.3%</strong>.{" "}
               Each piece of knowledge tightened the guarantee. These bounds aren't ranked
               worst-to-best — they're <em>tools for different situations</em>. The question is always:{" "}
-              <strong style={{ color: C.lime }}>what do I know about my random variable?</strong>
+              <strong style={{ color: C.lime }}>What do I know about my random variable?</strong>
             </p>
           </div>
         )}
